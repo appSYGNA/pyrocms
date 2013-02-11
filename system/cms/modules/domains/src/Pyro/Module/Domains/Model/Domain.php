@@ -13,7 +13,7 @@ class Domain extends \Illuminate\Database\Eloquent\Model
      *
      * @var string
      */
-    protected $table = 'core_domains';
+    protected $table = 'domains';
 
     /**
      * Disable updated_at and created_at on table
@@ -22,11 +22,6 @@ class Domain extends \Illuminate\Database\Eloquent\Model
      */
     public $timestamps = false;
 
-	public function setSiteId($site_id)
-	{
-		$this->_site_id = $site_id;
-	}
-	
 	/**
      * Find domain by ID
      *
@@ -34,10 +29,10 @@ class Domain extends \Illuminate\Database\Eloquent\Model
      *
      * @return void
      */
-	public static function findById($id) //used to be called 'get'
+	public static function findById($id, $site_id) //used to be called 'get'
 	{
 		return static::where('id', $id)
-					->where('site_id', $this->_site_id)->first();
+					->where('site_id', $site_id)->first();
 	}
 	
 	/**
@@ -45,9 +40,9 @@ class Domain extends \Illuminate\Database\Eloquent\Model
      *
      * @return array
      */
-	public static function getWithDomain()
+	public static function getWithDomain($site_id)
 	{
-		return static::where('site_id', $this->_site_id)
+		return static::where('site_id', $site_id)
 					->orderBy('domain', 'asc')
 					->get();
 	}
@@ -57,9 +52,9 @@ class Domain extends \Illuminate\Database\Eloquent\Model
      *
      * @return integer
      */
-	public function countWithDomain()
+	public static function countWithDomain($site_id)
 	{
-		return static::where('site_id', $this->_site_id)->count();
+		return static::where('site_id', $site_id)->count();
 		//$this->db->query("SELECT id FROM core_domains WHERE site_id = ".$this->db->escape($this->_site_id))->num_rows();
 	}
 
@@ -70,9 +65,9 @@ class Domain extends \Illuminate\Database\Eloquent\Model
      *
      * @return object
      */
-	public static function insertWithDomain($input = array())
+	public static function insertWithDomain($input = array(), $site_id)
 	{
-		$input['site_id'] = $this->_site_id;
+		$input['site_id'] = $site_id;
 		return static::insert($input);
 	}
 
@@ -84,11 +79,11 @@ class Domain extends \Illuminate\Database\Eloquent\Model
      *
      * @return object
      */
-	public static function updateByIdWithDomain($id, $input = array())
+	public static function updateByIdWithDomain($id, $input = array(), $site_id)
 	{
 		
 		return static::where('id', $id)
-					->where('site_id', $this->_site_id)
+					->where('site_id', static::getSiteId())
 					->update($input);
 	}
 
@@ -102,7 +97,7 @@ class Domain extends \Illuminate\Database\Eloquent\Model
 	public static function deleteByIdAndDomain($id)
 	{
 		return static::where('id', $id)
-					->where('site_id', $this->_site_id)
+					->where('site_id', static::getSiteId())
 					->delete();
 	}
 

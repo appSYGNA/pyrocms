@@ -43,8 +43,7 @@ class Admin extends Admin_Controller
 
 		$this->form_validation->set_rules($this->validation_rules);
 
-		Domain::setSiteId(site_id());
-
+		$this->site_id = site_id();
 	}
 
 	/**
@@ -54,7 +53,7 @@ class Admin extends Admin_Controller
 	{
         // Create pagination links
         
-		$total_rows = Domain::countWithDomain();
+		$total_rows = Domain::where('site_id', $this->site_id)->count();
 		$this->template->pagination = create_pagination('admin/domains/index', $total_rows);
 
 		// Using this data, get the relevant results
@@ -72,7 +71,7 @@ class Admin extends Admin_Controller
 		// Got validation?
 		if ($this->form_validation->run())
 		{
-			if (Domain::insertWithDomain($_POST))
+			if (Domain::insertWithDomain($_POST, $this->site_id))
 			{
 				$this->session->set_flashdata('success', lang('domains:add_success'));
 
