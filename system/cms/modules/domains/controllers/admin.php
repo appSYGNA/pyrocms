@@ -1,12 +1,14 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php
+
+use Pyro\Module\Domains\Model\Domain;
+
 /**
- * PyroCMS domain Admin Controller
+ * CMS controller for the domains module
  *
- * Provides an admin for the domain module.
- *
- * @author		Ryan Thompson - AI Web Systems, Inc.
- * @package		PyroCMS\Core\Modules\Domains\Controllers
+ * @author      PyroCMS Dev Team
+ * @package     PyroCMS\Core\Modules\Domains\Controllers
  */
+
 class Admin extends Admin_Controller
 {
 	/**
@@ -36,13 +38,12 @@ class Admin extends Admin_Controller
 
 		// Load the required classes
 		$this->load->library('form_validation');
-		$this->load->model('domain_m');
 		$this->load->helper('domains');
 		$this->lang->load('domains');
 
 		$this->form_validation->set_rules($this->validation_rules);
 
-		$this->domain_m->_site_id = site_id();
+		Domain::setSiteId(site_id());
 
 	}
 
@@ -52,11 +53,12 @@ class Admin extends Admin_Controller
 	public function index()
 	{
         // Create pagination links
-		$total_rows = $this->domain_m->count_all();
+        
+		$total_rows = Domain::countWithDomain();
 		$this->template->pagination = create_pagination('admin/domains/index', $total_rows);
 
 		// Using this data, get the relevant results
-        $this->template->domains = $this->domain_m->get_all();
+        $this->template->domains = Domain::getWithDomain();
 
 		$this->template->build('admin/index');
 	}
@@ -70,7 +72,7 @@ class Admin extends Admin_Controller
 		// Got validation?
 		if ($this->form_validation->run())
 		{
-			if ($this->domain_m->insert($_POST))
+			if (Domain::insertWithDomain($_POST))
 			{
 				$this->session->set_flashdata('success', lang('domains:add_success'));
 
@@ -108,14 +110,14 @@ class Admin extends Admin_Controller
 		$id or redirect('admin/domains');
 
 		// Get the domain
-		if ( !$domain = $this->domain_m->get($id) )
+		if ( !$domain = Domain::findById($id) )
 		{
-			redirec('admin/domains');
+			redirect('admin/domains');
 		}
 
 		if ($this->form_validation->run())
 		{
-			if ($this->domain_m->update($id, $this->input->post()))
+			if (Domain::updateByIdWithDomain($id, $this->input->post()))
 			{
 				$this->session->set_flashdata('success', $this->lang->line('domains:edit_success'));
 
@@ -149,7 +151,7 @@ class Admin extends Admin_Controller
 			$to_delete = 0;
 			foreach ($id_array as $id)
 			{
-				if ($this->domain_m->delete($id))
+				if (Domain::deleteByIdAndDomain($id))
 				{
 					$deleted++;
 				}
@@ -183,7 +185,7 @@ class Admin extends Admin_Controller
 	{
 		$id = $this->uri->segment(4);
 
-		if ($this->domain_m->check_domain($domain, $id))
+		if (Domain::check_domain($domain, $id))
 		{
 			$this->form_validation->set_message('_check_unique', sprintf(lang('domains:request_conflict_error'), $domain));
 			return false;
