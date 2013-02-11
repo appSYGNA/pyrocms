@@ -30,7 +30,7 @@ class Domain extends \Illuminate\Database\Eloquent\Model
 	/**
      * Find domain by ID
      *
-     * @param string $id The id of the domain
+     * @param integer $id The id of the domain
      *
      * @return void
      */
@@ -40,6 +40,11 @@ class Domain extends \Illuminate\Database\Eloquent\Model
 					->where('site_id', $this->_site_id)->first();
 	}
 	
+	/**
+     * Get all domains for this site
+     *
+     * @return array
+     */
 	public static function getWithDomain()
 	{
 		return static::where('site_id', $this->_site_id)
@@ -47,18 +52,38 @@ class Domain extends \Illuminate\Database\Eloquent\Model
 					->get();
 	}
 
+	/**
+     * Count domains for this site
+     *
+     * @return integer
+     */
 	public function countWithDomain()
 	{
 		return static::where('site_id', $this->_site_id)->count();
 		//$this->db->query("SELECT id FROM core_domains WHERE site_id = ".$this->db->escape($this->_site_id))->num_rows();
 	}
 
+	/**
+     * Insert into table with the site ID
+     *
+     * @param array $input The field values to insert
+     *
+     * @return object
+     */
 	public static function insertWithDomain($input = array())
 	{
 		$input['site_id'] = $this->_site_id;
 		return static::insert($input);
 	}
 
+	/**
+     * Update table for this site with the given values
+     *
+     * @param integer $id The id of the domain
+	 * @param array $input The field values to update
+     *
+     * @return object
+     */
 	public static function updateByIdWithDomain($id, $input = array())
 	{
 		
@@ -67,6 +92,13 @@ class Domain extends \Illuminate\Database\Eloquent\Model
 					->update($input);
 	}
 
+	/**
+     * Delete by ID and the site ID
+     *
+     * @param integer $id The id of the domain
+     *
+     * @return object
+     */
 	public static function deleteByIdAndDomain($id)
 	{
 		return static::where('id', $id)
